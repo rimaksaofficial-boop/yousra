@@ -1,0 +1,26 @@
+[
+  {
+    "filePath": "public/images/logo.png",
+    "fileName": "logo.png",
+    "publicId": "bavo257nfylyfyskuchm",
+    "format": "png",
+    "bytes": 142887,
+    "width": 822,
+    "height": 304,
+    "rawSecureUrl": "https://res.cloudinary.com/o8xawiyy/image/upload/v1788915880/bavo257nfylyfyskuchm.png",
+    "optimizedUrl": "https://res.cloudinary.com/o8xawiyy/image/upload/f_auto,q_auto/v1788915880/bavo257nfylyfyskuchm.png",
+    "optimizedWidthUrl": "https://res.cloudinary.com/o8xawiyy/image/upload/f_auto,q_auto,w_auto/v1788915880/bavo257nfylyfyskuchm.png"
+  },
+  {
+    "filePath": "public/images/portrait.png",
+    "fileName": "portrait.png",
+    "publicId": "vkzho9oollfknos4zji3",
+    "format": "png",
+    "bytes": 240442,
+    "width": 434,
+    "height": 575,
+    "rawSecureUrl": "https://res.cloudinary.com/o8xawiyy/image/upload/v1788915889/vkzho9oollfknos4zji3.png",
+    "optimizedUrl": "https://res.cloudinary.com/o8xawiyy/image/upload/f_auto,q_auto/v1788915889/vkzho9oollfknos4zji3.png",
+    "optimizedWidthUrl": "https://res.cloudinary.com/o8xawiyy/image/upload/f_auto,q_auto,w_auto/v1788915889/vkzho9oollfknos4zji3.png"
+  }
+]

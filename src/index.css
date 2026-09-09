@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+:root {
+  --font-arabic-display: 'El Messiri', serif;
+  --font-arabic-sans: 'Alexandria', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif: 'Cinzel', 'Marcellus', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-arabic-display {
+  font-family: var(--font-arabic-display);
+}
+
+.font-arabic {
+  font-family: var(--font-arabic-display);
+}
+
+.font-arabic-sans {
+  font-family: var(--font-arabic-sans);
+}
+
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+.font-sans-modern {
+  font-family: var(--font-sans);
+}
+
+/* Custom subtle luxury scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF7F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #5C131F33;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #5C131F66;
+}
