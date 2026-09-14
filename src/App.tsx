@@ -71,6 +71,9 @@ function AppContent() {
     peopleCount: 1,
     location: '',
     customerName: '',
+    customerPhone: '',
+    fawranSenderPhone: '',
+    fawranDepositAmount: '',
   });
 
   // Keep HTML lang & dir synced dynamically

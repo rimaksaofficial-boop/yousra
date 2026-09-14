@@ -26,9 +26,11 @@ import {
   FileText,
   Phone,
   AlertTriangle,
+  CreditCard,
 } from 'lucide-react';
 import { useSiteData } from '../../context/SiteDataContext';
 import { ServiceItem, BridalPackageItem, BookingRecord, BookingStatus, Language } from '../../types';
+import { autoTranslateArabicToEnglish } from '../../utils/translator';
 
 interface AdminDashboardProps {
   isOpen: boolean;
@@ -94,6 +96,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     peopleCount: 1,
     location: 'الدوحة، قطر',
     notes: '',
+    fawranSenderPhone: '',
+    fawranDepositAmount: '',
   });
 
   // Service Edit / Add Modal State
@@ -156,13 +160,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     e.preventDefault();
     if (!editingService) return;
 
+    const finalNameEn = editingService.item.nameEn?.trim() || autoTranslateArabicToEnglish(editingService.item.nameAr) || editingService.item.nameAr;
+    const finalDescEn = editingService.item.descEn?.trim() || (editingService.item.descAr ? autoTranslateArabicToEnglish(editingService.item.descAr) : '') || editingService.item.descAr;
+    const finalNoteEn = editingService.item.noteEn?.trim() || (editingService.item.noteAr ? autoTranslateArabicToEnglish(editingService.item.noteAr) : undefined);
+
+    const resolvedItem: ServiceItem = {
+      ...editingService.item,
+      nameEn: finalNameEn,
+      descEn: finalDescEn,
+      noteEn: finalNoteEn,
+    };
+
     if (editingService.isNew) {
-      const { id, ...itemWithoutId } = editingService.item;
+      const { id, ...itemWithoutId } = resolvedItem;
       addService(editingService.category, itemWithoutId);
-      showNotice('تمت إضافة الخدمة بنجاح');
+      showNotice('تمت إضافة الخدمة وترجمتها للإنجليزية بنجاح');
     } else {
-      updateService(editingService.category, editingService.item);
-      showNotice('تم تحديث الخدمة بنجاح');
+      updateService(editingService.category, resolvedItem);
+      showNotice('تم تحديث الخدمة وترجمتها بنجاح');
     }
     setEditingService(null);
   };
@@ -172,12 +187,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     e.preventDefault();
     if (!editingBridal) return;
 
+    const finalNameEn = editingBridal.item.nameEn?.trim() || autoTranslateArabicToEnglish(editingBridal.item.nameAr) || editingBridal.item.nameAr;
+    const finalBadgeEn = editingBridal.item.badgeEn?.trim() || (editingBridal.item.badgeAr ? autoTranslateArabicToEnglish(editingBridal.item.badgeAr) : 'Bridal');
+    const finalHighlightEn = editingBridal.item.highlightEn?.trim() || (editingBridal.item.highlightAr ? autoTranslateArabicToEnglish(editingBridal.item.highlightAr) : undefined);
+    const finalFeaturesEn = editingBridal.item.featuresEn && editingBridal.item.featuresEn.length > 0
+      ? editingBridal.item.featuresEn
+      : editingBridal.item.featuresAr.map((f) => autoTranslateArabicToEnglish(f));
+
+    const resolvedBridal: BridalPackageItem = {
+      ...editingBridal.item,
+      nameEn: finalNameEn,
+      badgeEn: finalBadgeEn,
+      highlightEn: finalHighlightEn,
+      featuresEn: finalFeaturesEn,
+    };
+
     if (editingBridal.isNew) {
-      const { id, ...itemWithoutId } = editingBridal.item;
+      const { id, ...itemWithoutId } = resolvedBridal;
       addBridalPackage(itemWithoutId);
-      showNotice('تمت إضافة باقة العروس بنجاح');
+      showNotice('تمت إضافة باقة العروس وترجمتها للإنجليزية بنجاح');
     } else {
-      updateBridalPackage(editingBridal.item);
+      updateBridalPackage(resolvedBridal);
       showNotice('تم تحديث باقة العروس بنجاح');
     }
     setEditingBridal(null);
@@ -198,6 +228,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       peopleCount: Number(newBookingData.peopleCount) || 1,
       location: newBookingData.location,
       notes: newBookingData.notes,
+      fawranSenderPhone: newBookingData.fawranSenderPhone,
+      fawranDepositAmount: newBookingData.fawranDepositAmount,
     });
 
     setShowAddBookingModal(false);
@@ -210,6 +242,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       peopleCount: 1,
       location: 'الدوحة، قطر',
       notes: '',
+      fawranSenderPhone: '',
+      fawranDepositAmount: '',
     });
     showNotice('تم تسجيل الحجز بنجاح في النظام');
   };
@@ -505,6 +539,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               <p className="text-xs text-neutral-500 bg-[#FAF7F2] p-2 rounded-lg border border-neutral-200/60 mt-1">
                                 <span className="font-semibold">ملاحظات العميل:</span> {booking.notes}
                               </p>
+                            )}
+
+                            {/* Fawran Deposit Details */}
+                            {Boolean(booking.fawranSenderPhone || booking.fawranDepositAmount) ? (
+                              <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs flex flex-wrap items-center gap-x-4 gap-y-1 text-amber-950">
+                                <span className="font-bold flex items-center gap-1.5 text-[#5C131F]">
+                                  <CreditCard className="w-3.5 h-3.5" />
+                                  <span>عربون فوران (Fawran):</span>
+                                </span>
+                                {booking.fawranDepositAmount && (
+                                  <span className="bg-white px-2 py-0.5 rounded border border-amber-300 font-bold text-[#2A050A]">
+                                    المبلغ: {booking.fawranDepositAmount} ر.ق
+                                  </span>
+                                )}
+                                {booking.fawranSenderPhone && (
+                                  <span className="bg-white px-2 py-0.5 rounded border border-amber-300" dir="ltr">
+                                    من رقم: <strong>{booking.fawranSenderPhone}</strong>
+                                  </span>
+                                )}
+                                <span className="text-[11px] text-neutral-500">
+                                  (محفظة فوران المستلمة: 31061141 - YUSRA KHALIL MOHAMMAD KURDI)
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-400">
+                                <CreditCard className="w-3 h-3" />
+                                <span>محفظة فوران: 31061141 (YUSRA KHALIL MOHAMMAD KURDI) — بانتظار تحويل العربون</span>
+                              </div>
                             )}
                           </div>
 
@@ -1309,6 +1371,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </form>
                 </div>
 
+                {/* Fawran Wallet Configuration Info */}
+                <div className="bg-amber-50/70 p-5 rounded-xl border border-amber-200 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-amber-200">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-[#5C131F]" />
+                      <h3 className="text-base font-bold text-[#2A050A]">
+                        بيانات محفظة فوران للعربون (Fawran Instant Payment)
+                      </h3>
+                    </div>
+                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                      مفعّلة في نموذج الحجز والواتساب
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-600">
+                    تظهر هذه البيانات مباشرة للعملاء عند الحجز في الموقع لطلب تحويل العربون، وتُرسل تلقائياً إلى واتساب مع بيانات التحويل:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-white p-3 rounded-lg border border-amber-200">
+                      <span className="block text-[11px] text-neutral-500 font-bold mb-1">رقم محفظة فوران:</span>
+                      <span className="text-base font-mono font-bold text-[#5C131F]" dir="ltr">31061141</span>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-amber-200">
+                      <span className="block text-[11px] text-neutral-500 font-bold mb-1">اسم المستفيد المعتمد:</span>
+                      <span className="text-sm font-bold text-[#2A050A]" dir="ltr">YUSRA KHALIL MOHAMMAD KURDI</span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* System Specs & Database Status */}
                 <div className="bg-[#FAF7F2] p-5 rounded-xl border border-[#5C131F]/15 text-xs text-neutral-600 space-y-2.5">
                   <div className="font-bold text-[#2A050A] flex items-center justify-between">
@@ -1427,6 +1517,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 />
               </div>
 
+              {/* Fawran Deposit Section in Manual Booking Modal */}
+              <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/80 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-[#5C131F]">
+                  <CreditCard className="w-3.5 h-3.5 text-[#C9A86A]" />
+                  <span>بيانات عربون فوران (محفظة: 31061141)</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-neutral-700 mb-1">المبلغ المحوّل (ر.ق)</label>
+                    <input
+                      type="text"
+                      placeholder="مثال: 500"
+                      value={newBookingData.fawranDepositAmount}
+                      onChange={(e) => setNewBookingData({ ...newBookingData, fawranDepositAmount: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-amber-300 rounded-lg focus:outline-hidden"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-neutral-700 mb-1">رقم هاتف المحوّل</label>
+                    <input
+                      type="text"
+                      dir="ltr"
+                      placeholder="مثال: 55XXXXXX"
+                      value={newBookingData.fawranSenderPhone}
+                      onChange={(e) => setNewBookingData({ ...newBookingData, fawranSenderPhone: e.target.value })}
+                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-amber-300 rounded-lg focus:outline-hidden"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-neutral-700 mb-1">ملاحظات إضافية</label>
                 <textarea
@@ -1491,13 +1612,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     type="text"
                     required
                     value={editingService.item.nameAr}
-                    onChange={(e) => setEditingService({
-                      ...editingService,
-                      item: { ...editingService.item, nameAr: e.target.value },
-                    })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingService({
+                        ...editingService,
+                        item: {
+                          ...editingService.item,
+                          nameAr: val,
+                          nameEn: autoTranslateArabicToEnglish(val),
+                        },
+                      });
+                    }}
                     className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg"
                   />
                 </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-neutral-700">اسم الخدمة بالإنجليزية (Name in English)</label>
+                  <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    ✨ يترجم تلقائياً
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  dir="ltr"
+                  placeholder="e.g. Glamour Makeup"
+                  value={editingService.item.nameEn || ''}
+                  onChange={(e) => setEditingService({
+                    ...editingService,
+                    item: { ...editingService.item, nameEn: e.target.value },
+                  })}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg text-left"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -1519,25 +1667,59 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <input
                     type="text"
                     value={editingService.item.noteAr || ''}
-                    onChange={(e) => setEditingService({
-                      ...editingService,
-                      item: { ...editingService.item, noteAr: e.target.value },
-                    })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditingService({
+                        ...editingService,
+                        item: {
+                          ...editingService.item,
+                          noteAr: val,
+                          noteEn: autoTranslateArabicToEnglish(val),
+                        },
+                      });
+                    }}
                     className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">الوصف المختصر</label>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">الوصف المختصر (عربي)</label>
                 <textarea
                   rows={2}
                   value={editingService.item.descAr || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditingService({
+                      ...editingService,
+                      item: {
+                        ...editingService.item,
+                        descAr: val,
+                        descEn: autoTranslateArabicToEnglish(val),
+                      },
+                    });
+                  }}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-neutral-700">الوصف بالإنجليزية (Description En)</label>
+                  <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    ✨ يترجم تلقائياً
+                  </span>
+                </div>
+                <textarea
+                  rows={2}
+                  dir="ltr"
+                  placeholder="English description"
+                  value={editingService.item.descEn || ''}
                   onChange={(e) => setEditingService({
                     ...editingService,
-                    item: { ...editingService.item, descAr: e.target.value },
+                    item: { ...editingService.item, descEn: e.target.value },
                   })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg text-left"
                 />
               </div>
 
@@ -1581,11 +1763,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   type="text"
                   required
                   value={editingBridal.item.nameAr}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setEditingBridal({
+                      ...editingBridal,
+                      item: {
+                        ...editingBridal.item,
+                        nameAr: val,
+                        nameEn: autoTranslateArabicToEnglish(val),
+                      },
+                    });
+                  }}
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-neutral-700">اسم الباقة بالإنجليزية (Package Name En)</label>
+                  <span className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    ✨ يترجم تلقائياً
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  dir="ltr"
+                  placeholder="e.g. Royal VIP Bridal Package"
+                  value={editingBridal.item.nameEn || ''}
                   onChange={(e) => setEditingBridal({
                     ...editingBridal,
-                    item: { ...editingBridal.item, nameAr: e.target.value },
+                    item: { ...editingBridal.item, nameEn: e.target.value },
                   })}
-                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg"
+                  className="w-full px-3 py-2 text-xs bg-[#FAF7F2] border border-neutral-300 rounded-lg text-left"
                 />
               </div>
 

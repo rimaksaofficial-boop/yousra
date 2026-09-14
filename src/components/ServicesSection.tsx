@@ -2,6 +2,7 @@ import React from 'react';
 import { Sparkles, ArrowUpRight, Check } from 'lucide-react';
 import { Language, ServiceItem } from '../types';
 import { useSiteData } from '../context/SiteDataContext';
+import { autoTranslateArabicToEnglish } from '../utils/translator';
 
 interface ServicesSectionProps {
   lang: Language;
@@ -77,12 +78,12 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   <h3 className={`text-xl sm:text-2xl font-bold text-[#2A050A] mb-3 group-hover:text-[#5C131F] transition-colors ${
                     lang === 'ar' ? 'font-arabic' : 'font-editorial font-semibold'
                   }`}>
-                    {lang === 'ar' ? service.nameAr : service.nameEn}
+                    {lang === 'ar' ? service.nameAr : (service.nameEn?.trim() || autoTranslateArabicToEnglish(service.nameAr) || service.nameAr)}
                   </h3>
 
                   {/* Description */}
                   <p className="text-sm text-[#4A2027]/80 leading-relaxed mb-6 font-sans-modern">
-                    {lang === 'ar' ? service.descAr : service.descEn}
+                    {lang === 'ar' ? service.descAr : (service.descEn?.trim() || (service.descAr ? autoTranslateArabicToEnglish(service.descAr) : '') || service.descAr)}
                   </p>
 
                   {/* Details Bullet List if available (e.g. Service 03 & 04) */}

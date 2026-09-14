@@ -38,6 +38,8 @@ export interface BookingFormData {
   location: string;
   customerName: string;
   customerPhone?: string;
+  fawranSenderPhone?: string;
+  fawranDepositAmount?: string;
   notes?: string;
 }
 
@@ -57,6 +59,8 @@ export interface BookingRecord {
   notes?: string;
   status: BookingStatus;
   sentViaWhatsApp?: boolean;
+  fawranSenderPhone?: string;
+  fawranDepositAmount?: string;
 }
 
 export interface SiteBrandConfig {

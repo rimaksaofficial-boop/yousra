@@ -228,6 +228,15 @@ export const BOOKING_POLICY = {
   ],
 };
 
+export const FAWRAN_CONFIG = {
+  walletNumber: '31061141',
+  beneficiaryName: 'YUSRA KHALIL MOHAMMAD KURDI',
+  serviceNameAr: 'فوران (Fawran)',
+  serviceNameEn: 'Fawran (Qatar Instant Payment)',
+  instructionAr: 'برجاء تحويل العربون من خلال فوران',
+  instructionEn: 'Please transfer the deposit via Fawran',
+};
+
 // Generates the official WhatsApp link according to the user specification
 export function generateWhatsAppBookingUrl(params: {
   serviceName: string;
@@ -235,8 +244,35 @@ export function generateWhatsAppBookingUrl(params: {
   peopleCount: number;
   location: string;
   customerName: string;
+  customerPhone?: string;
+  fawranSenderPhone?: string;
+  fawranDepositAmount?: string;
+  rawWhatsAppNumber?: string;
   lang: 'ar' | 'en';
 }): string {
+  const targetNumber = params.rawWhatsAppNumber || BRAND_ASSETS.whatsappRaw;
+
+  const fawranAr = params.fawranSenderPhone || params.fawranDepositAmount
+    ? `\n\n💳 بيانات تحويل العربون (خدمة فوران):
+- محفظة فوران المستلمة: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
+- رقم المحول منه (فوران): ${params.fawranSenderPhone?.trim() || 'سيتم إرساله بعد التحويل'}
+- مبلغ العربون المحوّل: ${params.fawranDepositAmount?.trim() ? `${params.fawranDepositAmount.trim()} ر.ق` : 'قيد التحويل'}`
+    : `\n\n💳 بيانات دفع العربون (فوران):
+- محفظة فوران: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
+- حالة العربون: سأقوم بالتحويل عبر فوران فور التأكيد`;
+
+  const fawranEn = params.fawranSenderPhone || params.fawranDepositAmount
+    ? `\n\n💳 Fawran Deposit Transfer Details:
+- Fawran Receiving Wallet: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
+- Transferred From (Sender Number): ${params.fawranSenderPhone?.trim() || 'Will provide upon transfer'}
+- Deposit Amount: ${params.fawranDepositAmount?.trim() ? `${params.fawranDepositAmount.trim()} QAR` : 'Pending transfer'}`
+    : `\n\n💳 Fawran Deposit Payment:
+- Fawran Receiving Wallet: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
+- Deposit Status: Will transfer via Fawran upon confirmation`;
+
+  const phoneLineAr = params.customerPhone?.trim() ? `\nرقم التواصل:\n${params.customerPhone.trim()}\n` : '';
+  const phoneLineEn = params.customerPhone?.trim() ? `\nContact Phone:\n${params.customerPhone.trim()}\n` : '';
+
   const message = params.lang === 'ar'
     ? `مرحباً يسرا الكردي،
 
@@ -255,7 +291,7 @@ ${params.peopleCount}
 ${params.location || 'الدوحة، قطر'}
 
 الحجز باسم:
-${params.customerName || 'عميلة كريمة'}
+${params.customerName || 'عميلة كريمة'}${phoneLineAr}${fawranAr}
 
 أرغب في تأكيد توفر الموعد والحجز.`
     : `Hello Yusra Alkordi,
@@ -275,9 +311,9 @@ Location:
 ${params.location || 'Doha, Qatar'}
 
 Booking Name:
-${params.customerName || 'Valued Client'}
+${params.customerName || 'Valued Client'}${phoneLineEn}${fawranEn}
 
 I would like to confirm appointment availability and booking.`;
 
-  return `https://wa.me/${BRAND_ASSETS.whatsappRaw}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}`;
 }

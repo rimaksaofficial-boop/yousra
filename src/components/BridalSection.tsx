@@ -2,6 +2,7 @@ import React from 'react';
 import { Crown, Sparkles, Check, ArrowUpRight, Gift } from 'lucide-react';
 import { Language, ServiceItem, BridalPackageItem } from '../types';
 import { useSiteData } from '../context/SiteDataContext';
+import { autoTranslateArabicToEnglish } from '../utils/translator';
 
 interface BridalSectionProps {
   lang: Language;
@@ -15,13 +16,16 @@ export const BridalSection: React.FC<BridalSectionProps> = ({
   const { bridalPackages } = useSiteData();
 
   const handleSelect = (pkg: BridalPackageItem) => {
+    const resolvedNameEn = pkg.nameEn?.trim() || autoTranslateArabicToEnglish(pkg.nameAr) || pkg.nameAr;
+    const resolvedFeaturesEn = pkg.featuresEn && pkg.featuresEn.length > 0 ? pkg.featuresEn : pkg.featuresAr.map((f) => autoTranslateArabicToEnglish(f));
+
     onSelectService({
       id: pkg.id,
       number: 'BR',
       nameAr: pkg.nameAr,
-      nameEn: pkg.nameEn,
+      nameEn: resolvedNameEn,
       descAr: pkg.featuresAr.join(' • '),
-      descEn: pkg.featuresEn.join(' • '),
+      descEn: resolvedFeaturesEn.join(' • '),
       price: pkg.price,
     });
   };
@@ -85,14 +89,14 @@ export const BridalSection: React.FC<BridalSectionProps> = ({
                 <div>
                   {/* Category Pill */}
                   <span className="text-xs uppercase tracking-widest text-[#C9A86A] font-semibold mb-3 block font-sans-modern">
-                    {lang === 'ar' ? pkg.badgeAr : pkg.badgeEn}
+                    {lang === 'ar' ? pkg.badgeAr : (pkg.badgeEn?.trim() || autoTranslateArabicToEnglish(pkg.badgeAr) || 'Bridal')}
                   </span>
 
                   {/* Title */}
                   <h3 className={`text-2xl sm:text-3xl font-bold text-[#FAF7F2] mb-4 ${
                     lang === 'ar' ? 'font-arabic' : 'font-editorial font-medium'
                   }`}>
-                    {lang === 'ar' ? pkg.nameAr : pkg.nameEn}
+                    {lang === 'ar' ? pkg.nameAr : (pkg.nameEn?.trim() || autoTranslateArabicToEnglish(pkg.nameAr) || pkg.nameAr)}
                   </h3>
 
                   {/* Price */}
@@ -106,18 +110,18 @@ export const BridalSection: React.FC<BridalSectionProps> = ({
                   </div>
 
                   {/* Highlight Box if Diamond */}
-                  {isDiamond && pkg.highlightAr && (
+                  {isDiamond && (pkg.highlightAr || pkg.highlightEn) && (
                     <div className="mb-6 p-4 rounded-xl bg-[#FAF7F2]/10 border border-[#C9A86A]/40 flex items-center gap-3">
                       <Gift className="w-5 h-5 text-[#C9A86A] shrink-0" />
                       <div className="text-xs sm:text-sm font-semibold text-[#FAF7F2]">
-                        {lang === 'ar' ? pkg.highlightAr : pkg.highlightEn}
+                        {lang === 'ar' ? pkg.highlightAr : (pkg.highlightEn?.trim() || (pkg.highlightAr ? autoTranslateArabicToEnglish(pkg.highlightAr) : ''))}
                       </div>
                     </div>
                   )}
 
                   {/* Features List */}
                   <div className="space-y-3.5 mb-10">
-                    {(lang === 'ar' ? pkg.featuresAr : pkg.featuresEn).map((feature, idx) => (
+                    {(lang === 'ar' ? pkg.featuresAr : (pkg.featuresEn && pkg.featuresEn.length > 0 ? pkg.featuresEn : pkg.featuresAr.map((f) => autoTranslateArabicToEnglish(f)))).map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-3">
                         <div className={`mt-0.5 rounded-full p-0.5 shrink-0 ${
                           isDiamond ? 'bg-[#C9A86A] text-[#2A050A]' : 'bg-[#FAF7F2]/20 text-[#FAF7F2]'

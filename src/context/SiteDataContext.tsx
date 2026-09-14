@@ -18,6 +18,7 @@ import {
   BOOKING_POLICY,
 } from '../data/content';
 import { db } from '../lib/firebase';
+import { autoTranslateArabicToEnglish } from '../utils/translator';
 import {
   doc,
   setDoc,
@@ -207,8 +208,18 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   const syncToFirestore = useCallback(async (patch: Partial<SiteDataState>) => {
     try {
       setIsFirebaseSyncing(true);
+
+      // Instant local broadcast to other tabs/windows
+      if (typeof BroadcastChannel !== 'undefined') {
+        try {
+          const bc = new BroadcastChannel('yusra_atelier_realtime_channel');
+          bc.postMessage({ type: 'SYNC_DATA', payload: patch });
+          bc.close();
+        } catch (err) {}
+      }
+
       const siteDocRef = doc(db, 'yusra_atelier', 'site_content');
-      await setDoc(siteDocRef, patch, { merge: true });
+      await setDoc(siteDocRef, { ...patch, lastSyncedAt: Date.now() }, { merge: true });
       setIsFirebaseConnected(true);
       setSyncError(null);
     } catch (err: any) {
@@ -220,40 +231,104 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   }, []);
 
+  // Cross-tab synchronization listener
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    const bc = new BroadcastChannel('yusra_atelier_realtime_channel');
+    bc.onmessage = (event) => {
+      if (event.data?.type === 'SYNC_DATA' && event.data?.payload) {
+        setData((prev) => ({ ...prev, ...event.data.payload }));
+      }
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setData(parsed);
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      bc.close();
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   // Real-time Firestore listener for Site Content (Brand, Services, Packages, About, Hero)
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
+    const siteDocRef = doc(db, 'yusra_atelier', 'site_content');
+
+    const handleServerSnapshot = (snapshot: any) => {
+      setIsFirebaseConnected(true);
+      setSyncError(null);
+      if (snapshot.exists()) {
+        const serverData = snapshot.data() as Partial<SiteDataState>;
+        setData((prev) => {
+          // Ensure services and packages from server always have proper English names
+          const sanitizeServicesList = (list?: ServiceItem[]) => {
+            if (!list || !Array.isArray(list)) return undefined;
+            return list.map((s) => ({
+              ...s,
+              nameEn: s.nameEn?.trim() || autoTranslateArabicToEnglish(s.nameAr) || s.nameAr,
+              descEn: s.descEn?.trim() || (s.descAr ? autoTranslateArabicToEnglish(s.descAr) : '') || s.descAr,
+              noteEn: s.noteEn?.trim() || (s.noteAr ? autoTranslateArabicToEnglish(s.noteAr) : undefined),
+            }));
+          };
+
+          const sanitizeBridalList = (list?: BridalPackageItem[]) => {
+            if (!list || !Array.isArray(list)) return undefined;
+            return list.map((b) => ({
+              ...b,
+              nameEn: b.nameEn?.trim() || autoTranslateArabicToEnglish(b.nameAr) || b.nameAr,
+              badgeEn: b.badgeEn?.trim() || (b.badgeAr ? autoTranslateArabicToEnglish(b.badgeAr) : 'Bridal'),
+              highlightEn: b.highlightEn?.trim() || (b.highlightAr ? autoTranslateArabicToEnglish(b.highlightAr) : undefined),
+              featuresEn: b.featuresEn && b.featuresEn.length > 0 ? b.featuresEn : b.featuresAr.map((f) => autoTranslateArabicToEnglish(f)),
+            }));
+          };
+
+          const resolvedServices = sanitizeServicesList(serverData.services) ?? prev.services;
+          const resolvedMakeup = sanitizeServicesList(serverData.makeupPackages) ?? prev.makeupPackages;
+          const resolvedBridal = sanitizeBridalList(serverData.bridalPackages) ?? prev.bridalPackages;
+
+          const merged: SiteDataState = {
+            ...prev,
+            ...serverData,
+            brand: { ...prev.brand, ...(serverData.brand || {}) },
+            hero: { ...prev.hero, ...(serverData.hero || {}) },
+            about: { ...prev.about, ...(serverData.about || {}) },
+            policies: { ...prev.policies, ...(serverData.policies || {}) },
+            specialOccasion: { ...prev.specialOccasion, ...(serverData.specialOccasion || {}) },
+            services: resolvedServices,
+            makeupPackages: resolvedMakeup,
+            bridalPackages: resolvedBridal,
+            bookings: serverData.bookings && Array.isArray(serverData.bookings) ? serverData.bookings : prev.bookings,
+          };
+          return merged;
+        });
+      } else {
+        // First time initialization in fresh Firestore database
+        setDoc(siteDocRef, { ...DEFAULT_SITE_DATA, lastSyncedAt: Date.now() }, { merge: true }).catch((err) => {
+          console.warn('Firestore initial write note:', err?.message);
+        });
+      }
+    };
+
     try {
-      const siteDocRef = doc(db, 'yusra_atelier', 'site_content');
+      // 1. Immediate getDoc on mount to avoid WebSocket connection delay
+      getDoc(siteDocRef).then((snap) => {
+        handleServerSnapshot(snap);
+      }).catch((e) => console.warn('Immediate getDoc note:', e?.message));
+
+      // 2. Real-time onSnapshot with includeMetadataChanges
       unsubscribe = onSnapshot(
         siteDocRef,
+        { includeMetadataChanges: true },
         (snapshot) => {
-          setIsFirebaseConnected(true);
-          setSyncError(null);
-          if (snapshot.exists()) {
-            const serverData = snapshot.data() as Partial<SiteDataState>;
-            setData((prev) => {
-              const merged: SiteDataState = {
-                ...prev,
-                ...serverData,
-                brand: { ...prev.brand, ...(serverData.brand || {}) },
-                hero: { ...prev.hero, ...(serverData.hero || {}) },
-                about: { ...prev.about, ...(serverData.about || {}) },
-                policies: { ...prev.policies, ...(serverData.policies || {}) },
-                specialOccasion: { ...prev.specialOccasion, ...(serverData.specialOccasion || {}) },
-                services: serverData.services && Array.isArray(serverData.services) ? serverData.services : prev.services,
-                makeupPackages: serverData.makeupPackages && Array.isArray(serverData.makeupPackages) ? serverData.makeupPackages : prev.makeupPackages,
-                bridalPackages: serverData.bridalPackages && Array.isArray(serverData.bridalPackages) ? serverData.bridalPackages : prev.bridalPackages,
-                bookings: serverData.bookings && Array.isArray(serverData.bookings) ? serverData.bookings : prev.bookings,
-              };
-              return merged;
-            });
-          } else {
-            // First time initialization in fresh Firestore database
-            setDoc(siteDocRef, DEFAULT_SITE_DATA, { merge: true }).catch((err) => {
-              console.warn('Firestore initial write note:', err?.message);
-            });
-          }
+          handleServerSnapshot(snapshot);
         },
         (error) => {
           console.warn('Firestore snapshot listener note:', error?.message);
@@ -266,8 +341,31 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       setSyncError(err?.message || 'Database initializing');
     }
 
+    // 3. Immediate re-sync when tab/device wakes up from sleep or user switches to it
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        getDoc(siteDocRef).then((snap) => {
+          handleServerSnapshot(snap);
+        }).catch(() => {});
+      }
+    };
+    window.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+
+    // 4. Polling heartbeat every 15s to guarantee fresh updates even if mobile WS dropped
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        getDoc(siteDocRef).then((snap) => {
+          handleServerSnapshot(snap);
+        }).catch(() => {});
+      }
+    }, 15000);
+
     return () => {
       if (unsubscribe) unsubscribe();
+      window.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      clearInterval(pollInterval);
     };
   }, []);
 
@@ -376,8 +474,15 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Services Methods
   const addService = (category: 'services' | 'makeup', item: Omit<ServiceItem, 'id'>) => {
+    const nameEn = item.nameEn?.trim() || autoTranslateArabicToEnglish(item.nameAr) || item.nameAr;
+    const descEn = item.descEn?.trim() || (item.descAr ? autoTranslateArabicToEnglish(item.descAr) : '') || item.descAr;
+    const noteEn = item.noteEn?.trim() || (item.noteAr ? autoTranslateArabicToEnglish(item.noteAr) : undefined);
+
     const newService: ServiceItem = {
       ...item,
+      nameEn,
+      descEn,
+      noteEn,
       id: `custom-svc-${Date.now()}`,
     };
 
@@ -395,13 +500,23 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const updateService = (category: 'services' | 'makeup', item: ServiceItem) => {
+    const nameEn = item.nameEn?.trim() || autoTranslateArabicToEnglish(item.nameAr) || item.nameAr;
+    const descEn = item.descEn?.trim() || (item.descAr ? autoTranslateArabicToEnglish(item.descAr) : '') || item.descAr;
+    const noteEn = item.noteEn?.trim() || (item.noteAr ? autoTranslateArabicToEnglish(item.noteAr) : undefined);
+    const resolvedItem: ServiceItem = {
+      ...item,
+      nameEn,
+      descEn,
+      noteEn,
+    };
+
     setData((prev) => {
       if (category === 'services') {
-        const nextList = prev.services.map((s) => (s.id === item.id ? item : s));
+        const nextList = prev.services.map((s) => (s.id === item.id ? resolvedItem : s));
         syncToFirestore({ services: nextList });
         return { ...prev, services: nextList };
       } else {
-        const nextList = prev.makeupPackages.map((s) => (s.id === item.id ? item : s));
+        const nextList = prev.makeupPackages.map((s) => (s.id === item.id ? resolvedItem : s));
         syncToFirestore({ makeupPackages: nextList });
         return { ...prev, makeupPackages: nextList };
       }
@@ -424,8 +539,17 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   // Bridal Packages Methods
   const addBridalPackage = (item: Omit<BridalPackageItem, 'id'>) => {
+    const nameEn = item.nameEn?.trim() || autoTranslateArabicToEnglish(item.nameAr) || item.nameAr;
+    const badgeEn = item.badgeEn?.trim() || (item.badgeAr ? autoTranslateArabicToEnglish(item.badgeAr) : 'Bridal');
+    const highlightEn = item.highlightEn?.trim() || (item.highlightAr ? autoTranslateArabicToEnglish(item.highlightAr) : undefined);
+    const featuresEn = item.featuresEn && item.featuresEn.length > 0 ? item.featuresEn : item.featuresAr.map((f) => autoTranslateArabicToEnglish(f));
+
     const newPkg: BridalPackageItem = {
       ...item,
+      nameEn,
+      badgeEn,
+      highlightEn,
+      featuresEn,
       id: `bridal-${Date.now()}`,
     };
     setData((prev) => {
@@ -436,8 +560,21 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const updateBridalPackage = (item: BridalPackageItem) => {
+    const nameEn = item.nameEn?.trim() || autoTranslateArabicToEnglish(item.nameAr) || item.nameAr;
+    const badgeEn = item.badgeEn?.trim() || (item.badgeAr ? autoTranslateArabicToEnglish(item.badgeAr) : 'Bridal');
+    const highlightEn = item.highlightEn?.trim() || (item.highlightAr ? autoTranslateArabicToEnglish(item.highlightAr) : undefined);
+    const featuresEn = item.featuresEn && item.featuresEn.length > 0 ? item.featuresEn : item.featuresAr.map((f) => autoTranslateArabicToEnglish(f));
+
+    const resolvedPkg: BridalPackageItem = {
+      ...item,
+      nameEn,
+      badgeEn,
+      highlightEn,
+      featuresEn,
+    };
+
     setData((prev) => {
-      const nextList = prev.bridalPackages.map((p) => (p.id === item.id ? item : p));
+      const nextList = prev.bridalPackages.map((p) => (p.id === item.id ? resolvedPkg : p));
       syncToFirestore({ bridalPackages: nextList });
       return { ...prev, bridalPackages: nextList };
     });

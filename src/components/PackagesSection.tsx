@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowUpRight, Users, Sparkles } from 'lucide-react';
 import { Language, ServiceItem } from '../types';
 import { useSiteData } from '../context/SiteDataContext';
+import { autoTranslateArabicToEnglish } from '../utils/translator';
 
 interface PackagesSectionProps {
   lang: Language;
@@ -54,7 +55,7 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
                     {hasGroupNote && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#5C131F]/8 text-[#5C131F] text-[11px] font-medium font-sans-modern">
                         <Users className="w-3 h-3" />
-                        <span>{lang === 'ar' ? pkg.noteAr : pkg.noteEn}</span>
+                        <span>{lang === 'ar' ? pkg.noteAr : (pkg.noteEn?.trim() || autoTranslateArabicToEnglish(pkg.noteAr))}</span>
                       </span>
                     )}
                   </div>
@@ -63,12 +64,12 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
                   <h3 className={`text-lg sm:text-xl font-bold text-[#2A050A] mb-2 group-hover:text-[#5C131F] transition-colors ${
                     lang === 'ar' ? 'font-arabic' : 'font-editorial font-semibold'
                   }`}>
-                    {lang === 'ar' ? pkg.nameAr : pkg.nameEn}
+                    {lang === 'ar' ? pkg.nameAr : (pkg.nameEn?.trim() || autoTranslateArabicToEnglish(pkg.nameAr) || pkg.nameAr)}
                   </h3>
 
                   {/* Short Description */}
                   <p className="text-xs sm:text-sm text-[#4A2027]/75 leading-relaxed mb-6 font-sans-modern">
-                    {lang === 'ar' ? pkg.descAr : pkg.descEn}
+                    {lang === 'ar' ? pkg.descAr : (pkg.descEn?.trim() || (pkg.descAr ? autoTranslateArabicToEnglish(pkg.descAr) : '') || pkg.descAr)}
                   </p>
                 </div>
 
