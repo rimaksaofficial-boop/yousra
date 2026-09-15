@@ -1,4 +1,4 @@
-import { ServiceItem, BridalPackageItem } from '../types';
+import { ServiceItem, BridalPackageItem, DestinationCountry } from '../types';
 
 export const BRAND_ASSETS = {
   logo: 'https://res.cloudinary.com/o8xawiyy/image/upload/f_auto,q_auto/v1788915880/bavo257nfylyfyskuchm.png',
@@ -333,3 +333,201 @@ I would like to confirm appointment availability and booking.`;
 
   return `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}`;
 }
+
+// ============================================================================
+// Service: Makeup & Hair Services with Yousra El Kordy (Egypt & Gulf Destinations)
+// الميكب والشعر مع يسرا الكردي (مصر ودول الخليج)
+// ============================================================================
+
+export const MAKEUP_HAIR_SERVICE_INFO = {
+  titleAr: 'الميكب والشعر مع يسرا الكردي',
+  titleEn: 'Makeup & Hair Services with Yousra El Kordy',
+  subtitleAr: 'خدمات مخصصة وراقية متاحة في الدول الخليجية مع تجهيز العرائس والمرافقات',
+  subtitleEn: 'Exclusive bespoke bridal & occasion styling available across Gulf destinations',
+  pricingNoticeAr: 'يتم تحديد السعر حسب الدولة والخدمة والتاريخ.',
+  pricingNoticeEn: 'Pricing is determined based on the country, service, and requested date.',
+  bridesmaidsDescriptionAr:
+    'خدمات ميكب وشعر متكاملة لمرافقات العروس وصديقاتها وأفراد العائلة، لإطلالة أنيقة ومتناسقة في يومك المميز.',
+  bridesmaidsDescriptionEn:
+    'Complete makeup and hair services for bridesmaids, friends, and family members, creating elegant and coordinated looks for your special day.',
+  offerings: [
+    {
+      id: 'bridal_makeup',
+      nameAr: 'ميكب العروس',
+      nameEn: 'Bridal Makeup',
+      descAr: 'ميكب زفاف ملكي بأحدث التقنيات مع تثبيت يدوم طوال الحفل وإبراز ملامح الجمال الطبيعي.',
+      descEn: 'Royal wedding makeup utilizing couture techniques with enduring longevity, unveiling your authentic beauty.',
+    },
+    {
+      id: 'bridal_hair',
+      nameAr: 'تسريحات شعر العروس',
+      nameEn: 'Bridal Hair Styling',
+      descAr: 'تسريحات عصرية وكلاسيكية 3D متقنة تناسب طرحة الزفاف والتاج وتفاصيل الفستان.',
+      descEn: 'Intricately sculptured modern & classic 3D hairstyles tailored to harmonize with veil, tiara, and gown.',
+    },
+    {
+      id: 'occasions',
+      nameAr: 'الميكب والشعر للمناسبات',
+      nameEn: 'Occasion Makeup & Hair',
+      descAr: 'إطلالات ساحرة للخطوبة، الملكة، الحناء، وحفلات الاستقبال والسهرات الخاصة.',
+      descEn: 'Glamorous, radiant looks for engagements, milka ceremonies, henna nights, and gala receptions.',
+    },
+    {
+      id: 'full_bridal_prep',
+      nameAr: 'تجهيز العروس بالكامل',
+      nameEn: 'Full Bridal Preparation',
+      descAr: 'بكج متكامل يشمل الميكب الفاخر، تسريحة الشعر، تغطيات الجسم، تركيب الطرحة والإكسسوارات الملكية.',
+      descEn: 'Comprehensive couture package encompassing luxury makeup, hair styling, body glow, and veil placement.',
+    },
+    {
+      id: 'bridesmaids_family',
+      nameAr: 'مرافقات العروس وصديقاتها وأفراد العائلة',
+      nameEn: 'Bridesmaids & Family Members',
+      descAr: 'خدمات ميكب وشعر متكاملة لمرافقات العروس وصديقاتها وأفراد العائلة، لإطلالة أنيقة ومتناسقة في يومك المميز.',
+      descEn: 'Complete makeup and hair services for bridesmaids, friends, and family members, creating elegant and coordinated looks for your special day.',
+    },
+  ],
+};
+
+export const DESTINATION_COUNTRIES: DestinationCountry[] = [
+  {
+    id: 'saudi_arabia',
+    code: 'SA',
+    dialCode: '+966',
+    nameAr: 'السعودية',
+    nameEn: 'Saudi Arabia',
+    flag: '🇸🇦',
+    popularCitiesAr: ['الرياض', 'جدة', 'الدمام', 'الخبر', 'مكة المكرمة', 'المدينة المنورة', 'أبها', 'تبوك'],
+    popularCitiesEn: ['Riyadh', 'Jeddah', 'Dammam', 'Khobar', 'Makkah', 'Madinah', 'Abha', 'Tabuk'],
+  },
+  {
+    id: 'uae',
+    code: 'AE',
+    dialCode: '+971',
+    nameAr: 'الإمارات',
+    nameEn: 'United Arab Emirates',
+    flag: '🇦🇪',
+    popularCitiesAr: ['دبي', 'أبوظبي', 'الشارقة', 'عجمان', 'العين', 'رأس الخيمة', 'الفجيرة'],
+    popularCitiesEn: ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Al Ain', 'Ras Al Khaimah', 'Fujairah'],
+  },
+  {
+    id: 'kuwait',
+    code: 'KW',
+    dialCode: '+965',
+    nameAr: 'الكويت',
+    nameEn: 'Kuwait',
+    flag: '🇰🇼',
+    popularCitiesAr: ['مدينة الكويت', 'حولي', 'السالمية', 'الأحمدي', 'الجهراء', 'الفروانية'],
+    popularCitiesEn: ['Kuwait City', 'Hawalli', 'Salmiya', 'Al Ahmadi', 'Al Jahra', 'Al Farwaniyah'],
+  },
+  {
+    id: 'bahrain',
+    code: 'BH',
+    dialCode: '+973',
+    nameAr: 'البحرين',
+    nameEn: 'Bahrain',
+    flag: '🇧🇭',
+    popularCitiesAr: ['المنامة', 'المحرق', 'الرفاع', 'مدينة عيسى', 'مدينة حمد', 'سترة'],
+    popularCitiesEn: ['Manama', 'Muharraq', 'Riffa', 'Isa Town', 'Hamad Town', 'Sitra'],
+  },
+  {
+    id: 'oman',
+    code: 'OM',
+    dialCode: '+968',
+    nameAr: 'عُمان',
+    nameEn: 'Oman',
+    flag: '🇴🇲',
+    popularCitiesAr: ['مسقط', 'صلالة', 'صحار', 'نزوى', 'صور', 'البريمي'],
+    popularCitiesEn: ['Muscat', 'Salalah', 'Sohar', 'Nizwa', 'Sur', 'Al Buraimi'],
+  },
+  {
+    id: 'qatar',
+    code: 'QA',
+    dialCode: '+974',
+    nameAr: 'قطر',
+    nameEn: 'Qatar',
+    flag: '🇶🇦',
+    popularCitiesAr: ['الدوحة', 'لوسيل', 'اللؤلؤة', 'الوكرة', 'الخور', 'الريان'],
+    popularCitiesEn: ['Doha', 'Lusail', 'The Pearl', 'Al Wakrah', 'Al Khor', 'Al Rayyan'],
+  },
+];
+
+// Generates the official WhatsApp link according to the user specification:
+// Arabic:
+// "مرحبًا يسرا الكردي، أرغب في الاستفسار عن حجز خدمة الميكب والشعر.
+//
+// الاسم: [الاسم]
+// الدولة: [الدولة]
+// المدينة: [المدينة]
+// التاريخ: [التاريخ]
+// الخدمة المطلوبة: [الخدمة]
+// نوع المناسبة: [نوع المناسبة]
+// عروس / مرافقات العروس: [الاختيار]
+// عدد المرافقات: [العدد]
+// ملاحظات: [الملاحظات]
+//
+// أرغب في معرفة الأسعار والتوافر والتفاصيل."
+//
+// English:
+// "Hello Yousra El Kordy, I would like to inquire about booking makeup and hair services.
+//
+// Name: [Name]
+// Country: [Country]
+// City: [City]
+// Date: [Date]
+// Requested Service: [Service]
+// Occasion: [Occasion]
+// Bride / Bridesmaids: [Selection]
+// Number of Bridesmaids: [Number]
+// Notes: [Notes]
+//
+// I would like to know the pricing, availability, and details."
+
+export function generateMakeupHairWhatsAppUrl(params: {
+  customerName: string;
+  country: string;
+  city: string;
+  date: string;
+  serviceRequested: string;
+  occasion: string;
+  brideOrBridesmaids: string;
+  bridesmaidsCount: string | number;
+  notes?: string;
+  rawWhatsAppNumber?: string;
+  lang: 'ar' | 'en';
+}): string {
+  const targetNumber = params.rawWhatsAppNumber || BRAND_ASSETS.whatsappRaw;
+  const safeNotes = params.notes?.trim() || (params.lang === 'ar' ? 'لا توجد ملاحظات إضافية' : 'No additional notes');
+
+  const message =
+    params.lang === 'ar'
+      ? `مرحبًا يسرا الكردي، أرغب في الاستفسار عن حجز خدمة الميكب والشعر.
+
+الاسم: ${params.customerName || 'عميلة كريمة'}
+الدولة: ${params.country || 'غير محدد'}
+المدينة: ${params.city || 'غير محدد'}
+التاريخ: ${params.date || 'غير محدد'}
+الخدمة المطلوبة: ${params.serviceRequested || 'ميكب وشعر'}
+نوع المناسبة: ${params.occasion || 'مناسبة خاصة'}
+عروس / مرافقات العروس: ${params.brideOrBridesmaids || 'العروس'}
+عدد المرافقات: ${params.bridesmaidsCount ?? 0}
+ملاحظات: ${safeNotes}
+
+أرغب في معرفة الأسعار والتوافر والتفاصيل.`
+      : `Hello Yousra El Kordy, I would like to inquire about booking makeup and hair services.
+
+Name: ${params.customerName || 'Valued Client'}
+Country: ${params.country || 'Not specified'}
+City: ${params.city || 'Not specified'}
+Date: ${params.date || 'Not specified'}
+Requested Service: ${params.serviceRequested || 'Makeup & Hair'}
+Occasion: ${params.occasion || 'Special Occasion'}
+Bride / Bridesmaids: ${params.brideOrBridesmaids || 'Bride'}
+Number of Bridesmaids: ${params.bridesmaidsCount ?? 0}
+Notes: ${safeNotes}
+
+I would like to know the pricing, availability, and details.`;
+
+  return `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}`;
+}
+

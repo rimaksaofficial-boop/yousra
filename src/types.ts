@@ -43,6 +43,36 @@ export interface BookingFormData {
   notes?: string;
 }
 
+export type MakeupHairServiceType = 'makeup' | 'hair' | 'makeup_and_hair';
+export type BrideRoleSelection = 'bride_only' | 'bride_and_bridesmaids' | 'bridesmaids_only';
+
+export interface MakeupHairBookingFormData {
+  fullName: string;
+  phone: string;
+  countryCode: string; // e.g., 'EG', 'SA', 'AE', 'KW', 'BH', 'OM', 'QA'
+  countryNameAr: string;
+  countryNameEn: string;
+  city: string;
+  date: string;
+  serviceType: MakeupHairServiceType;
+  occasionAr: string;
+  occasionEn: string;
+  brideRole: BrideRoleSelection;
+  bridesmaidsCount: number;
+  notes: string;
+}
+
+export interface DestinationCountry {
+  id: string;
+  code: string;
+  dialCode: string;
+  nameAr: string;
+  nameEn: string;
+  flag: string;
+  popularCitiesAr: string[];
+  popularCitiesEn: string[];
+}
+
 export type BookingStatus = 'new' | 'contacted' | 'confirmed' | 'completed' | 'cancelled';
 
 export interface BookingRecord {

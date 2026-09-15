@@ -9,6 +9,7 @@ import { ServicesSection } from './components/ServicesSection';
 import { PackagesSection } from './components/PackagesSection';
 import { SpecialOccasionsSection } from './components/SpecialOccasionsSection';
 import { BridalSection } from './components/BridalSection';
+import { MakeupHairServiceSection } from './components/MakeupHairServiceSection';
 import { BookingSection } from './components/BookingSection';
 import { SocialSection } from './components/SocialSection';
 import { FinalCTA } from './components/FinalCTA';
@@ -190,7 +191,12 @@ function AppContent() {
           onSelectService={handleSelectService}
         />
 
-        {/* Section 7: Interactive Booking with Real Date Picker & WhatsApp Generator */}
+        {/* Section 7: Dedicated Makeup & Hair Services with Yousra El Kordy (Egypt & Gulf Destinations) */}
+        <MakeupHairServiceSection
+          lang={lang}
+        />
+
+        {/* Section 8: Interactive Booking with Real Date Picker & WhatsApp Generator */}
         <BookingSection
           lang={lang}
           formData={formData}
