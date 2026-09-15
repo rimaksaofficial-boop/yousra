@@ -541,12 +541,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </p>
                             )}
 
-                            {/* Fawran Deposit Details */}
+                            {/* Fawra Deposit Details */}
                             {Boolean(booking.fawranSenderPhone || booking.fawranDepositAmount) ? (
                               <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs flex flex-wrap items-center gap-x-4 gap-y-1 text-amber-950">
                                 <span className="font-bold flex items-center gap-1.5 text-[#5C131F]">
                                   <CreditCard className="w-3.5 h-3.5" />
-                                  <span>عربون فوران (Fawran):</span>
+                                  <span>عربون فورا (Fawra):</span>
                                 </span>
                                 {booking.fawranDepositAmount && (
                                   <span className="bg-white px-2 py-0.5 rounded border border-amber-300 font-bold text-[#2A050A]">
@@ -559,13 +559,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   </span>
                                 )}
                                 <span className="text-[11px] text-neutral-500">
-                                  (محفظة فوران المستلمة: 31061141 - YUSRA KHALIL MOHAMMAD KURDI)
+                                  (محفظة فورا: 31061141 - YUSRA KHALIL MOHAMMAD KURDI | تنويه: 500 لشخص، 1000 لشخصين وأكثر)
                                 </span>
                               </div>
                             ) : (
                               <div className="mt-1 flex items-center gap-1.5 text-[11px] text-neutral-400">
                                 <CreditCard className="w-3 h-3" />
-                                <span>محفظة فوران: 31061141 (YUSRA KHALIL MOHAMMAD KURDI) — بانتظار تحويل العربون</span>
+                                <span>محفظة فورا: 31061141 (YUSRA KHALIL MOHAMMAD KURDI) — العربون الموحد: {booking.peopleCount >= 2 ? '1000' : '500'} ر.ق</span>
                               </div>
                             )}
                           </div>
@@ -1371,17 +1371,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </form>
                 </div>
 
-                {/* Fawran Wallet Configuration Info */}
+                {/* Fawra Wallet Configuration Info */}
                 <div className="bg-amber-50/70 p-5 rounded-xl border border-amber-200 shadow-xs space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-amber-200">
                     <div className="flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-[#5C131F]" />
                       <h3 className="text-base font-bold text-[#2A050A]">
-                        بيانات محفظة فوران للعربون (Fawran Instant Payment)
+                        بيانات محفظة فورا للعربون (Fawra Instant Payment)
                       </h3>
                     </div>
                     <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full">
                       مفعّلة في نموذج الحجز والواتساب
+                    </span>
+                  </div>
+                  {/* Deposit Notice Highlight */}
+                  <div className="p-3 bg-white rounded-lg border border-[#C9A86A]/60 flex items-center justify-between gap-3 text-xs">
+                    <span className="font-bold text-[#5C131F]">
+                      تنويه العربون الموحد:
+                    </span>
+                    <span className="font-extrabold text-[#2A050A] bg-amber-100/80 px-2.5 py-1 rounded-md">
+                      يتوحد العربون لشخص ٥٠٠ ر.ق ، ولشخصين وأكثر ١٠٠٠ ر.ق
                     </span>
                   </div>
                   <p className="text-xs text-neutral-600">
@@ -1389,7 +1398,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="bg-white p-3 rounded-lg border border-amber-200">
-                      <span className="block text-[11px] text-neutral-500 font-bold mb-1">رقم محفظة فوران:</span>
+                      <span className="block text-[11px] text-neutral-500 font-bold mb-1">رقم محفظة فورا:</span>
                       <span className="text-base font-mono font-bold text-[#5C131F]" dir="ltr">31061141</span>
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-amber-200">
@@ -1517,25 +1526,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 />
               </div>
 
-              {/* Fawran Deposit Section in Manual Booking Modal */}
+              {/* Fawra Deposit Section in Manual Booking Modal */}
               <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200/80 space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#5C131F]">
-                  <CreditCard className="w-3.5 h-3.5 text-[#C9A86A]" />
-                  <span>بيانات عربون فوران (محفظة: 31061141)</span>
+                <div className="flex items-center justify-between gap-1 text-xs font-bold text-[#5C131F] flex-wrap">
+                  <span className="flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 text-[#C9A86A]" />
+                    <span>بيانات عربون فورا (محفظة: 31061141)</span>
+                  </span>
+                  <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-amber-300 font-semibold text-amber-900">
+                    تنويه: 500 لشخص | 1000 لشخصين وأكثر
+                  </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-neutral-700 mb-1">المبلغ المحوّل (ر.ق)</label>
+                    <label className="block text-[11px] font-bold text-neutral-700 mb-1">
+                      المبلغ المحوّل (ر.ق)
+                    </label>
                     <input
                       type="text"
-                      placeholder="مثال: 500"
+                      placeholder={newBookingData.peopleCount >= 2 ? 'المطلوب: 1000' : 'المطلوب: 500'}
                       value={newBookingData.fawranDepositAmount}
                       onChange={(e) => setNewBookingData({ ...newBookingData, fawranDepositAmount: e.target.value })}
                       className="w-full px-2.5 py-1.5 text-xs bg-white border border-amber-300 rounded-lg focus:outline-hidden"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-neutral-700 mb-1">رقم هاتف المحوّل</label>
+                    <label className="block text-[11px] font-bold text-neutral-700 mb-1">رقم هاتف المحوّل (فورا)</label>
                     <input
                       type="text"
                       dir="ltr"

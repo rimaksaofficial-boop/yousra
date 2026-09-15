@@ -179,13 +179,26 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
+        const mergedPolicies = parsed.policies
+          ? {
+              ...DEFAULT_SITE_DATA.policies,
+              ...parsed.policies,
+              rulesAr: parsed.policies.rulesAr?.some((r: string) => r.includes('يتوحد العربون'))
+                ? parsed.policies.rulesAr
+                : DEFAULT_SITE_DATA.policies.rulesAr,
+              rulesEn: parsed.policies.rulesEn?.some((r: string) => r.toLowerCase().includes('deposit is unified'))
+                ? parsed.policies.rulesEn
+                : DEFAULT_SITE_DATA.policies.rulesEn,
+            }
+          : DEFAULT_SITE_DATA.policies;
+
         return {
           ...DEFAULT_SITE_DATA,
           ...parsed,
           brand: { ...DEFAULT_SITE_DATA.brand, ...(parsed.brand || {}) },
           hero: { ...DEFAULT_SITE_DATA.hero, ...(parsed.hero || {}) },
           about: { ...DEFAULT_SITE_DATA.about, ...(parsed.about || {}) },
-          policies: { ...DEFAULT_SITE_DATA.policies, ...(parsed.policies || {}) },
+          policies: mergedPolicies,
           bookings: parsed.bookings && Array.isArray(parsed.bookings) ? parsed.bookings : DEFAULT_SITE_DATA.bookings,
         };
       }

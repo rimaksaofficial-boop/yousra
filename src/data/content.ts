@@ -213,29 +213,36 @@ export const BOOKING_POLICY = {
   titleAr: 'تنويه مهم',
   titleEn: 'IMPORTANT BOOKING POLICY',
   rulesAr: [
+    'تنويه: يتوحد العربون لشخص ٥٠٠ ر.ق، ولشخصين وأكثر ١٠٠٠ ر.ق.',
     'أي حجز بدون عربون خلال يومين يعتبر ملغي.',
     'العربون لا يسترد لأي سبب من الأسباب.',
     'القروب إذا وحدة كنسلت أو أكثر، العربون يروح عليها.',
-    'طريقة دفع العربون عن طريق تحويل بنكي.',
+    'طريقة دفع العربون من خلال فورا (تحويل فوري).',
     'ملاحظة: دفع خدمة هوم سيرفس / التوصيل حسب الموقع.',
   ],
   rulesEn: [
+    'Notice: Deposit is unified: 500 QAR for 1 person, and 1,000 QAR for 2 people or more.',
     'Any booking without a deposit within two days will be considered cancelled.',
     'The deposit is non-refundable for any reason.',
     'For group bookings, if one or more clients cancel, their deposit is non-refundable.',
-    'Deposit payment is made by bank transfer.',
+    'Deposit payment is made via Fawra (Instant Payment).',
     'Note: Home Service / delivery charges depend on the location.',
   ],
 };
 
-export const FAWRAN_CONFIG = {
+export const FAWRA_CONFIG = {
   walletNumber: '31061141',
   beneficiaryName: 'YUSRA KHALIL MOHAMMAD KURDI',
-  serviceNameAr: 'فوران (Fawran)',
-  serviceNameEn: 'Fawran (Qatar Instant Payment)',
-  instructionAr: 'برجاء تحويل العربون من خلال فوران',
-  instructionEn: 'Please transfer the deposit via Fawran',
+  serviceNameAr: 'فورا (Fawra)',
+  serviceNameEn: 'Fawra (Qatar Instant Payment)',
+  instructionAr: 'برجاء تحويل العربون من خلال فورا',
+  instructionEn: 'Please transfer the deposit via Fawra',
+  depositNoticeAr: 'يتوحد العربون لشخص ٥٠٠ ر.ق، ولشخصين وأكثر ١٠٠٠ ر.ق',
+  depositNoticeEn: 'Deposit is unified: 500 QAR for 1 person, and 1,000 QAR for 2 people or more',
 };
+
+// Backwards-compatible alias
+export const FAWRAN_CONFIG = FAWRA_CONFIG;
 
 // Generates the official WhatsApp link according to the user specification
 export function generateWhatsAppBookingUrl(params: {
@@ -251,24 +258,33 @@ export function generateWhatsAppBookingUrl(params: {
   lang: 'ar' | 'en';
 }): string {
   const targetNumber = params.rawWhatsAppNumber || BRAND_ASSETS.whatsappRaw;
+  const requiredDeposit = params.peopleCount >= 2 ? 1000 : 500;
 
   const fawranAr = params.fawranSenderPhone || params.fawranDepositAmount
-    ? `\n\n💳 بيانات تحويل العربون (خدمة فوران):
-- محفظة فوران المستلمة: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
-- رقم المحول منه (فوران): ${params.fawranSenderPhone?.trim() || 'سيتم إرساله بعد التحويل'}
-- مبلغ العربون المحوّل: ${params.fawranDepositAmount?.trim() ? `${params.fawranDepositAmount.trim()} ر.ق` : 'قيد التحويل'}`
-    : `\n\n💳 بيانات دفع العربون (فوران):
-- محفظة فوران: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
-- حالة العربون: سأقوم بالتحويل عبر فوران فور التأكيد`;
+    ? `\n\n💳 بيانات تحويل العربون (خدمة فورا):
+- تنويه العربون: يتوحد العربون لشخص 500 ر.ق، ولشخصين وأكثر 1000 ر.ق
+- العربون المطلوب حسب العدد (${params.peopleCount} ${params.peopleCount === 1 ? 'شخص' : 'أفراد'}): ${requiredDeposit} ر.ق
+- محفظة فورا المستلمة: ${FAWRA_CONFIG.walletNumber} (${FAWRA_CONFIG.beneficiaryName})
+- رقم المحول منه (فورا): ${params.fawranSenderPhone?.trim() || 'سيتم إرساله بعد التحويل'}
+- مبلغ العربون المحوّل: ${params.fawranDepositAmount?.trim() ? `${params.fawranDepositAmount.trim()} ر.ق` : `${requiredDeposit} ر.ق (قيد التحويل)`}`
+    : `\n\n💳 بيانات دفع العربون (خدمة فورا):
+- تنويه العربون: يتوحد العربون لشخص 500 ر.ق، ولشخصين وأكثر 1000 ر.ق
+- العربون المطلوب حسب العدد (${params.peopleCount} ${params.peopleCount === 1 ? 'شخص' : 'أفراد'}): ${requiredDeposit} ر.ق
+- محفظة فورا: ${FAWRA_CONFIG.walletNumber} (${FAWRA_CONFIG.beneficiaryName})
+- حالة العربون: سأقوم بتحويل العربون (${requiredDeposit} ر.ق) عبر فورا فور التأكيد`;
 
   const fawranEn = params.fawranSenderPhone || params.fawranDepositAmount
-    ? `\n\n💳 Fawran Deposit Transfer Details:
-- Fawran Receiving Wallet: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
-- Transferred From (Sender Number): ${params.fawranSenderPhone?.trim() || 'Will provide upon transfer'}
-- Deposit Amount: ${params.fawranDepositAmount?.trim() ? `${params.fawranDepositAmount.trim()} QAR` : 'Pending transfer'}`
-    : `\n\n💳 Fawran Deposit Payment:
-- Fawran Receiving Wallet: ${FAWRAN_CONFIG.walletNumber} (${FAWRAN_CONFIG.beneficiaryName})
-- Deposit Status: Will transfer via Fawran upon confirmation`;
+    ? `\n\n💳 Fawra Deposit Transfer Details:
+- Notice: Deposit is 500 QAR for 1 person, and 1,000 QAR for 2+ people
+- Required Deposit for ${params.peopleCount} ${params.peopleCount === 1 ? 'person' : 'people'}: ${requiredDeposit} QAR
+- Fawra Receiving Wallet: ${FAWRA_CONFIG.walletNumber} (${FAWRA_CONFIG.beneficiaryName})
+- Transferred From (Fawra Mobile): ${params.fawranSenderPhone?.trim() || 'Will provide upon transfer'}
+- Deposit Amount: ${params.fawranDepositAmount?.trim() ? `${params.fawranDepositAmount.trim()} QAR` : `${requiredDeposit} QAR (Pending)`}`
+    : `\n\n💳 Fawra Deposit Payment:
+- Notice: Deposit is 500 QAR for 1 person, and 1,000 QAR for 2+ people
+- Required Deposit for ${params.peopleCount} ${params.peopleCount === 1 ? 'person' : 'people'}: ${requiredDeposit} QAR
+- Fawra Receiving Wallet: ${FAWRA_CONFIG.walletNumber} (${FAWRA_CONFIG.beneficiaryName})
+- Deposit Status: Will transfer deposit (${requiredDeposit} QAR) via Fawra upon confirmation`;
 
   const phoneLineAr = params.customerPhone?.trim() ? `\nرقم التواصل:\n${params.customerPhone.trim()}\n` : '';
   const phoneLineEn = params.customerPhone?.trim() ? `\nContact Phone:\n${params.customerPhone.trim()}\n` : '';

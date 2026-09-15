@@ -13,9 +13,10 @@ import {
   Check,
   Phone,
   ShieldCheck,
+  AlertCircle,
 } from 'lucide-react';
 import { Language, BookingFormData } from '../types';
-import { generateWhatsAppBookingUrl, FAWRAN_CONFIG } from '../data/content';
+import { generateWhatsAppBookingUrl, FAWRA_CONFIG } from '../data/content';
 import { useSiteData } from '../context/SiteDataContext';
 import { autoTranslateArabicToEnglish } from '../utils/translator';
 
@@ -414,9 +415,9 @@ export const BookingSection: React.FC<BookingSectionProps> = ({
               </div>
             </div>
 
-            {/* Field 6: Fawran Deposit Instructions & Transfer Info */}
+            {/* Field 6: Fawra Deposit Instructions & Transfer Info */}
             <div
-              id="fawran-payment-section"
+              id="fawra-payment-section"
               className="rounded-2xl border-2 border-[#C9A86A]/50 bg-gradient-to-br from-[#FFFDF9] via-[#FAF6EE] to-[#F5ECE0] p-5 sm:p-6 shadow-sm space-y-5"
             >
               {/* Section Heading & Instruction */}
@@ -431,11 +432,11 @@ export const BookingSection: React.FC<BookingSectionProps> = ({
                         {lang === 'ar' ? 'دفع العربون الفوري' : 'Instant Deposit'}
                       </span>
                       <span className="text-xs font-bold text-[#2A050A]">
-                        {lang === 'ar' ? FAWRAN_CONFIG.serviceNameAr : FAWRAN_CONFIG.serviceNameEn}
+                        {lang === 'ar' ? FAWRA_CONFIG.serviceNameAr : FAWRA_CONFIG.serviceNameEn}
                       </span>
                     </div>
                     <h3 className="text-sm sm:text-base font-bold text-[#5C131F] mt-0.5">
-                      {lang === 'ar' ? FAWRAN_CONFIG.instructionAr : FAWRAN_CONFIG.instructionEn}
+                      {lang === 'ar' ? FAWRA_CONFIG.instructionAr : FAWRA_CONFIG.instructionEn}
                     </h3>
                   </div>
                 </div>
@@ -445,21 +446,51 @@ export const BookingSection: React.FC<BookingSectionProps> = ({
                 </div>
               </div>
 
-              {/* Fawran Wallet Info Cards with Copy Buttons */}
+              {/* UNIFIED DEPOSIT NOTICE BANNER */}
+              <div className="bg-[#FAF0DD] border-2 border-[#C9A86A] rounded-xl p-4 flex items-start gap-3 shadow-2xs">
+                <div className="w-8 h-8 rounded-lg bg-[#5C131F] text-[#C9A86A] flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider bg-[#5C131F] text-white px-2 py-0.5 rounded-md">
+                      {lang === 'ar' ? 'تنويه هام للعربون' : 'Deposit Notice'}
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-[#5C131F]">
+                      {lang === 'ar'
+                        ? 'يتوحد العربون لشخص ٥٠٠ ر.ق ، لشخصين وأكثر ١٠٠٠ ر.ق'
+                        : 'Deposit is unified: 500 QAR for 1 person, and 1,000 QAR for 2 people or more.'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-[#2A050A] flex-wrap pt-0.5">
+                    <span>
+                      {lang === 'ar' ? 'العربون المطلوب لطلبك الحالي:' : 'Required deposit for your booking:'}
+                    </span>
+                    <span className="font-bold text-[#5C131F] bg-white px-2.5 py-0.5 rounded-md border border-[#C9A86A]/60 shadow-2xs">
+                      {formData.peopleCount >= 2 ? '1000' : '500'} {lang === 'ar' ? 'ر.ق' : 'QAR'}
+                    </span>
+                    <span className="text-[11px] text-[#5C131F]/80">
+                      ({formData.peopleCount} {lang === 'ar' ? (formData.peopleCount === 1 ? 'شخص' : 'أفراد') : (formData.peopleCount === 1 ? 'person' : 'people')})
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fawra Wallet Info Cards with Copy Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Wallet Number */}
                 <div className="bg-white/90 rounded-xl p-3.5 border border-[#C9A86A]/40 flex items-center justify-between gap-3 shadow-2xs">
                   <div className="space-y-0.5">
                     <span className="text-[11px] font-bold text-[#5C131F]/80 block">
-                      {lang === 'ar' ? 'رقم محفظة / هاتف فوران:' : 'Fawran Wallet / Mobile:'}
+                      {lang === 'ar' ? 'رقم محفظة / هاتف فورا:' : 'Fawra Wallet / Mobile:'}
                     </span>
                     <span className="text-lg font-mono font-bold tracking-wider text-[#2A050A]" dir="ltr">
-                      {FAWRAN_CONFIG.walletNumber}
+                      {FAWRA_CONFIG.walletNumber}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={() => handleCopy(FAWRAN_CONFIG.walletNumber, 'wallet')}
+                    onClick={() => handleCopy(FAWRA_CONFIG.walletNumber, 'wallet')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                       copiedKey === 'wallet'
                         ? 'bg-emerald-600 text-white shadow-xs'
@@ -488,12 +519,12 @@ export const BookingSection: React.FC<BookingSectionProps> = ({
                       {lang === 'ar' ? 'اسم المستفيد المعتمد:' : 'Beneficiary Name:'}
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-[#2A050A] truncate block" dir="ltr">
-                      {FAWRAN_CONFIG.beneficiaryName}
+                      {FAWRA_CONFIG.beneficiaryName}
                     </span>
                   </div>
                   <button
                     type="button"
-                    onClick={() => handleCopy(FAWRAN_CONFIG.beneficiaryName, 'name')}
+                    onClick={() => handleCopy(FAWRA_CONFIG.beneficiaryName, 'name')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
                       copiedKey === 'name'
                         ? 'bg-emerald-600 text-white shadow-xs'
@@ -518,30 +549,44 @@ export const BookingSection: React.FC<BookingSectionProps> = ({
 
               {/* Inputs for customer to specify transfer sender & deposit amount */}
               <div className="pt-2 border-t border-[#C9A86A]/25">
-                <div className="mb-2.5">
-                  <span className="text-xs font-bold text-[#2A050A] block">
-                    {lang === 'ar'
-                      ? 'بيانات التحويل الخاصة بك (لتأكيد الحجز فوراً):'
-                      : 'Your Transfer Confirmation (for immediate reservation):'}
-                  </span>
-                  <span className="text-[11px] text-[#5C131F]/80">
-                    {lang === 'ar'
-                      ? 'إذا قمتِ بالتحويل، يرجى كتابة الرقم والمبلغ أدناه، وستصل البيانات مباشرة مع طلبك إلى واتساب يسرا الكردي.'
-                      : 'If already transferred, enter your sender number and amount below. It will be sent directly via WhatsApp.'}
-                  </span>
+                <div className="mb-2.5 flex items-center justify-between gap-2 flex-wrap">
+                  <div>
+                    <span className="text-xs font-bold text-[#2A050A] block">
+                      {lang === 'ar'
+                        ? 'بيانات التحويل الخاصة بك (لتأكيد الحجز فوراً):'
+                        : 'Your Transfer Confirmation (for immediate reservation):'}
+                    </span>
+                    <span className="text-[11px] text-[#5C131F]/80">
+                      {lang === 'ar'
+                        ? 'إذا قمتِ بالتحويل عبر فورا، يرجى كتابة الرقم والمبلغ أدناه، وستصل البيانات مباشرة مع طلبك إلى واتساب يسرا الكردي.'
+                        : 'If already transferred via Fawra, enter your sender number and amount below. It will be sent directly via WhatsApp.'}
+                    </span>
+                  </div>
+                  {/* Quick autofill button for expected deposit */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const deposit = formData.peopleCount >= 2 ? '1000' : '500';
+                      setFormData((prev) => ({ ...prev, fawranDepositAmount: deposit }));
+                    }}
+                    className="text-[11px] font-bold text-[#5C131F] bg-white border border-[#C9A86A]/60 hover:bg-[#5C131F] hover:text-white px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>{lang === 'ar' ? 'تعبئة العربون المطلوب:' : 'Autofill required:'}</span>
+                    <span className="font-extrabold">{formData.peopleCount >= 2 ? '1000' : '500'} {lang === 'ar' ? 'ر.ق' : 'QAR'}</span>
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* Field A: Sender Phone / Account */}
                   <div>
                     <label
-                      htmlFor="fawran-sender-phone"
+                      htmlFor="fawra-sender-phone"
                       className="block text-xs font-semibold text-[#2A050A] mb-1.5 font-sans-modern"
                     >
-                      {lang === 'ar' ? 'رقم الهاتف / الحساب الذي تم منه التحويل' : 'Sender Mobile / Account (Fawran)'}
+                      {lang === 'ar' ? 'رقم الهاتف / الحساب الذي تم منه التحويل' : 'Sender Mobile / Account (Fawra)'}
                     </label>
                     <input
-                      id="fawran-sender-phone"
+                      id="fawra-sender-phone"
                       type="text"
                       dir="ltr"
                       placeholder={lang === 'ar' ? 'مثال: 55XXXXXX أو 33XXXXXX' : 'e.g. 55XXXXXX or 33XXXXXX'}
@@ -556,16 +601,20 @@ export const BookingSection: React.FC<BookingSectionProps> = ({
                   {/* Field B: Deposit Amount */}
                   <div>
                     <label
-                      htmlFor="fawran-deposit-amount"
+                      htmlFor="fawra-deposit-amount"
                       className="block text-xs font-semibold text-[#2A050A] mb-1.5 font-sans-modern"
                     >
                       {lang === 'ar' ? 'مبلغ العربون المحوّل (ر.ق)' : 'Transferred Deposit Amount (QAR)'}
                     </label>
                     <input
-                      id="fawran-deposit-amount"
+                      id="fawra-deposit-amount"
                       type="text"
                       dir="ltr"
-                      placeholder={lang === 'ar' ? 'مثال: 500 أو 1000' : 'e.g. 500 or 1000'}
+                      placeholder={
+                        formData.peopleCount >= 2
+                          ? (lang === 'ar' ? 'المطلوب: 1000 ر.ق' : 'Required: 1000 QAR')
+                          : (lang === 'ar' ? 'المطلوب: 500 ر.ق' : 'Required: 500 QAR')
+                      }
                       value={formData.fawranDepositAmount || ''}
                       onChange={(e) => {
                         setFormData((prev) => ({ ...prev, fawranDepositAmount: e.target.value }));
