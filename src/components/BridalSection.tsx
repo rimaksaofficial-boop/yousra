@@ -16,15 +16,19 @@ export const BridalSection: React.FC<BridalSectionProps> = ({
   const { bridalPackages } = useSiteData();
 
   const handleSelect = (pkg: BridalPackageItem) => {
+    const rawFeaturesAr = Array.isArray(pkg.featuresAr) ? pkg.featuresAr : [];
     const resolvedNameEn = pkg.nameEn?.trim() || autoTranslateArabicToEnglish(pkg.nameAr) || pkg.nameAr;
-    const resolvedFeaturesEn = pkg.featuresEn && pkg.featuresEn.length > 0 ? pkg.featuresEn : pkg.featuresAr.map((f) => autoTranslateArabicToEnglish(f));
+    const resolvedFeaturesEn =
+      Array.isArray(pkg.featuresEn) && pkg.featuresEn.length > 0
+        ? pkg.featuresEn
+        : rawFeaturesAr.map((f) => autoTranslateArabicToEnglish(f));
 
     onSelectService({
       id: pkg.id,
       number: 'BR',
       nameAr: pkg.nameAr,
       nameEn: resolvedNameEn,
-      descAr: pkg.featuresAr.join(' • '),
+      descAr: rawFeaturesAr.join(' • '),
       descEn: resolvedFeaturesEn.join(' • '),
       price: pkg.price,
     });
@@ -121,18 +125,29 @@ export const BridalSection: React.FC<BridalSectionProps> = ({
 
                   {/* Features List */}
                   <div className="space-y-3.5 mb-10">
-                    {(lang === 'ar' ? pkg.featuresAr : (pkg.featuresEn && pkg.featuresEn.length > 0 ? pkg.featuresEn : pkg.featuresAr.map((f) => autoTranslateArabicToEnglish(f)))).map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <div className={`mt-0.5 rounded-full p-0.5 shrink-0 ${
-                          isDiamond ? 'bg-[#C9A86A] text-[#2A050A]' : 'bg-[#FAF7F2]/20 text-[#FAF7F2]'
-                        }`}>
-                          <Check className="w-3.5 h-3.5" />
+                    {(() => {
+                      const safeFeaturesAr = Array.isArray(pkg.featuresAr) ? pkg.featuresAr : [];
+                      const safeFeaturesEn =
+                        Array.isArray(pkg.featuresEn) && pkg.featuresEn.length > 0
+                          ? pkg.featuresEn
+                          : safeFeaturesAr.map((f) => autoTranslateArabicToEnglish(f));
+                      const featuresToRender = lang === 'ar' ? safeFeaturesAr : safeFeaturesEn;
+
+                      return featuresToRender.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-3">
+                          <div
+                            className={`mt-0.5 rounded-full p-0.5 shrink-0 ${
+                              isDiamond ? 'bg-[#C9A86A] text-[#2A050A]' : 'bg-[#FAF7F2]/20 text-[#FAF7F2]'
+                            }`}
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="text-sm text-[#FAF7F2]/90 leading-relaxed font-sans-modern">
+                            {feature}
+                          </span>
                         </div>
-                        <span className="text-sm text-[#FAF7F2]/90 leading-relaxed font-sans-modern">
-                          {feature}
-                        </span>
-                      </div>
-                    ))}
+                      ));
+                    })()}
                   </div>
                 </div>
 

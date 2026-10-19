@@ -192,6 +192,27 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
             }
           : DEFAULT_SITE_DATA.policies;
 
+        const safeSpecialOccasion = {
+          ...DEFAULT_SITE_DATA.specialOccasion,
+          ...(parsed.specialOccasion || {}),
+          highlightsAr:
+            Array.isArray(parsed.specialOccasion?.highlightsAr) && parsed.specialOccasion.highlightsAr.length > 0
+              ? parsed.specialOccasion.highlightsAr
+              : DEFAULT_SITE_DATA.specialOccasion.highlightsAr,
+          highlightsEn:
+            Array.isArray(parsed.specialOccasion?.highlightsEn) && parsed.specialOccasion.highlightsEn.length > 0
+              ? parsed.specialOccasion.highlightsEn
+              : DEFAULT_SITE_DATA.specialOccasion.highlightsEn,
+        };
+
+        const safeBridal = Array.isArray(parsed.bridalPackages) && parsed.bridalPackages.length > 0
+          ? parsed.bridalPackages.map((b: BridalPackageItem) => ({
+              ...b,
+              featuresAr: Array.isArray(b.featuresAr) ? b.featuresAr : [],
+              featuresEn: Array.isArray(b.featuresEn) ? b.featuresEn : [],
+            }))
+          : DEFAULT_SITE_DATA.bridalPackages;
+
         return {
           ...DEFAULT_SITE_DATA,
           ...parsed,
@@ -199,6 +220,10 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           hero: { ...DEFAULT_SITE_DATA.hero, ...(parsed.hero || {}) },
           about: { ...DEFAULT_SITE_DATA.about, ...(parsed.about || {}) },
           policies: mergedPolicies,
+          specialOccasion: safeSpecialOccasion,
+          bridalPackages: safeBridal,
+          services: Array.isArray(parsed.services) && parsed.services.length > 0 ? parsed.services : DEFAULT_SITE_DATA.services,
+          makeupPackages: Array.isArray(parsed.makeupPackages) && parsed.makeupPackages.length > 0 ? parsed.makeupPackages : DEFAULT_SITE_DATA.makeupPackages,
           bookings: parsed.bookings && Array.isArray(parsed.bookings) ? parsed.bookings : DEFAULT_SITE_DATA.bookings,
         };
       }
@@ -307,6 +332,19 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
           const resolvedMakeup = sanitizeServicesList(serverData.makeupPackages) ?? prev.makeupPackages;
           const resolvedBridal = sanitizeBridalList(serverData.bridalPackages) ?? prev.bridalPackages;
 
+          const safeSpecialOccasion = {
+            ...prev.specialOccasion,
+            ...(serverData.specialOccasion || {}),
+            highlightsAr:
+              Array.isArray(serverData.specialOccasion?.highlightsAr) && serverData.specialOccasion.highlightsAr.length > 0
+                ? serverData.specialOccasion.highlightsAr
+                : prev.specialOccasion.highlightsAr,
+            highlightsEn:
+              Array.isArray(serverData.specialOccasion?.highlightsEn) && serverData.specialOccasion.highlightsEn.length > 0
+                ? serverData.specialOccasion.highlightsEn
+                : prev.specialOccasion.highlightsEn,
+          };
+
           const merged: SiteDataState = {
             ...prev,
             ...serverData,
@@ -314,7 +352,7 @@ export const SiteDataProvider: React.FC<{ children: ReactNode }> = ({ children }
             hero: { ...prev.hero, ...(serverData.hero || {}) },
             about: { ...prev.about, ...(serverData.about || {}) },
             policies: { ...prev.policies, ...(serverData.policies || {}) },
-            specialOccasion: { ...prev.specialOccasion, ...(serverData.specialOccasion || {}) },
+            specialOccasion: safeSpecialOccasion,
             services: resolvedServices,
             makeupPackages: resolvedMakeup,
             bridalPackages: resolvedBridal,

@@ -57,7 +57,10 @@ export const SpecialOccasionsSection: React.FC<SpecialOccasionsSectionProps> = (
 
               {/* Highlights */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                {(lang === 'ar' ? specialOccasion.highlightsAr : specialOccasion.highlightsEn).map((item, idx) => (
+                {(lang === 'ar'
+                  ? (specialOccasion?.highlightsAr || [])
+                  : (specialOccasion?.highlightsEn || specialOccasion?.highlightsAr || [])
+                ).map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-[#FAF7F2]/90">
                     <CheckCircle2 className="w-4 h-4 text-[#C9A86A] shrink-0" />
                     <span>{item}</span>
